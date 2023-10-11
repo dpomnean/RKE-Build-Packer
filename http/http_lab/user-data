@@ -15,7 +15,7 @@ autoinstall:
           search: [company.com]
         routes:
           - to: default
-            via: 10.20.151.1
+            via: X.X.X.X
   storage:
     layout:
       name: direct
