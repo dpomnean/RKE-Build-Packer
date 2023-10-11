@@ -1,0 +1,1 @@
+These scripts are ran post setup. Once the vm is setup, and rebooted. This would be the final step in adding users, packages, setting permissions, etc.

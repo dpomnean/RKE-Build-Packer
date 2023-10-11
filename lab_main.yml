@@ -1,0 +1,32 @@
+---
+- name: task to check info of vm
+  hosts: localhost
+  vars:
+    vsphere_lab_password: !vault |
+      $ANSIBLE_VAULT;1.2;AES256;vmwarepass_lab
+      insert_ansible_vault_vsphere_password_here
+    packer_ssh_password: !vault |
+      $ANSIBLE_VAULT;1.2;AES256;packerpass
+      insert_ansible_vault_ssh_password_here
+  tasks:
+
+    - name: packer init
+      ansible.builtin.shell: packer init .
+
+    - name: PAAAACKERRRRR
+      ansible.builtin.shell: "PACKER_LOG=1 packer build -var-file=ubuntu.lab.auto.pkrvars.hcl -var 'password={{ vsphere_lab_password }}' -var 'template_name=rancher_rke2-{{ ansible_date_time.date }}' -var 'ssh_password={{ packer_ssh_password }}' ."
+      register: packerout
+      #no_log: true
+      
+    - name: update golden image
+      script: "/usr/bin/python3 ./mpb_tools/main.py -s vsphere_url -u vsphere_user@vsphere.local -p {{ vsphere_lab_password }}"
+      become: false
+      delegate_to: 127.0.0.1
+      register: gold
+
+    - name: pretty output 
+      debug:
+        msg: "{{ gold.stdout.split('\n') }}"
+
+    - debug:
+        msg: "{{ packerout.stdout_lines }}"

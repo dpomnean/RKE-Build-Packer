@@ -1,0 +1,47 @@
+#cloud-config
+autoinstall:
+  version: 1
+  early-commands:
+    - systemctl stop ssh # otherwise packer tries to connect and exceed max attempts
+  locale: en_US
+  network:
+    version: 2
+    ethernets:
+      ens192:
+        dhcp4: true
+        nameservers:
+          # ---- ADD DNS SETTINGS HERE ----
+          addresses: [X.X.X.X]
+          search: [company.com]
+        routes:
+          - to: default
+            via: X.X.X.X
+  storage:
+    layout:
+      name: direct
+  keyboard:
+      layout: en
+      variant: us
+  identity:
+      hostname: mpb-test
+      username: packerbuilt
+      password: '$1$rKxy/hZT$vAZ801S0/UEAEmVKogUdU0' # Password in hashed format
+  ssh:
+      install-server: yes
+      allow-pw: yes
+  packages:
+    - open-vm-tools
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+    - plocate
+    - resolvconf
+    - nfs-common
+  late-commands:
+    - echo 'packerbuilt ALL=(ALL) NOPASSWD:ALL' >> /target/etc/sudoers.d/packerbuilt
+    - echo 'rancher ALL=(ALL) NOPASSWD:ALL' >> /target/etc/sudoers.d/packerbuilt
+    - chmod 440 /target/etc/sudoers.d/packerbuilt
+    - sudo touch /etc/cloud/cloud-init.disabled
+    
